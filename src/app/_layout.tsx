@@ -10,7 +10,7 @@ export default function RootLayout() {
     return (
         <ConvexProvider client={convex}>
             <Stack>
-                <Stack.Screen name='index' />
+                <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
             </Stack>
         </ConvexProvider>
     ) 
