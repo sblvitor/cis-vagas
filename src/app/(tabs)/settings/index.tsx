@@ -4,12 +4,9 @@ import { Button, View } from "react-native";
 export default function Config() {
     return (
         <View className="p-4">
-            <Link href={'/(tabs)/settings/manage-users'} asChild>
-                {/* <Pressable>
-                    <Text>Gerenciar usuários</Text>
-                </Pressable> */}
+            <Link href={'/(tabs)/settings/manage-employees'} asChild>
                 <Button 
-                    title="Gerenciar usuários"
+                    title="Gerenciar colaboradores"
                 />
             </Link>
         </View>
