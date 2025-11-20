@@ -14,7 +14,6 @@ export default defineSchema({
         position: v.number(),
         licensePlate: v.optional(v.string()),
         active: v.boolean(),
-        createdAt: v.number()
     })
         .index("by_position", ['position'])
         .index("by_active", ['active'])

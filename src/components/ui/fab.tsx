@@ -32,7 +32,7 @@ export const FloatingActionButton = ({ onPress }: FloatingActionButtonProps) => 
 
     return (
         <Animated.View 
-            className={'absolute bottom-8 right-8'}
+            className={'absolute bottom-8 right-8 z-10'}
             style={animatedStyle}
         >
             <Pressable
