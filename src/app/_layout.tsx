@@ -1,5 +1,6 @@
 import { ConvexProvider, ConvexReactClient } from 'convex/react';
 import { Stack } from "expo-router";
+import { HeroUINativeProvider } from 'heroui-native';
 import '../global.css';
 
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
@@ -9,9 +10,11 @@ const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
 export default function RootLayout() {
     return (
         <ConvexProvider client={convex}>
-            <Stack>
-                <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
-            </Stack>
+            <HeroUINativeProvider>
+                <Stack>
+                    <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
+                </Stack>
+            </HeroUINativeProvider>
         </ConvexProvider>
     ) 
 }
