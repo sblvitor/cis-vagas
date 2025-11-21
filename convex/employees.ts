@@ -22,9 +22,12 @@ export const addEmployees = mutation({
         for(const employee of args.employees) {
             currentMaxPosition++
 
+            const plate = employee.licensePlate?.trim()
+            const normalizedPlate = plate ? plate : undefined
+
             await ctx.db.insert('employees', { 
                 name: employee.name,
-                licensePlate: employee.licensePlate,
+                licensePlate: normalizedPlate,
                 active: true,
                 position: currentMaxPosition
             })
