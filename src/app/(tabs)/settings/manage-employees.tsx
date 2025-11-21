@@ -1,14 +1,16 @@
 import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
 import { FloatingActionButton } from "@/src/components/ui/fab";
-import { StyledIonicons } from "@/src/components/ui/styled-ionicons";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { FlashList } from "@shopify/flash-list";
 import { useQuery } from "convex/react";
 import { Link } from "expo-router";
-import { Button, Card, SkeletonGroup } from "heroui-native";
-import { View } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Chip, PressableFeedback, SkeletonGroup } from "heroui-native";
+import { ComponentProps } from "react";
+import { Text, View } from "react-native";
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
+import Reanimated, { SharedValue, useAnimatedStyle } from "react-native-reanimated";
+import { withUniwind } from "uniwind";
 
 type EmployeeType = Doc<"employees">;
 
@@ -17,7 +19,7 @@ export default function ManageUsers() {
     const employees = useQuery(api.employees.getEmployees)
 
     return (
-        <View className="flex-1 p-4">
+        <View className="flex-1">
             <Link href={'/(tabs)/settings/new-employees'} asChild>
                 <FloatingActionButton />
             </Link>
@@ -28,7 +30,7 @@ export default function ManageUsers() {
                         <FlashList
                             data={employees}
                             renderItem={({ item }) => <Employee employee={item} />}
-                            ItemSeparatorComponent={() => <View className="h-4" />}
+                            ItemSeparatorComponent={() => <View className="h-px w-full bg-gray-300" />}
                         />
                 )}
             </View>
@@ -38,36 +40,114 @@ export default function ManageUsers() {
 
 const Employee = ({ employee }: { employee: EmployeeType }) => {
     return (
-        <GestureHandlerRootView>
-            <ReanimatedSwipeable>
-                <Card>
-                    <Card.Body className="flex-row justify-between items-center gap-4">
-                        <View>
-                            <Card.Title>{employee.position}. {employee.name}</Card.Title>
-                            {employee.licensePlate && <Card.Description>{employee.licensePlate}</Card.Description>}
-                        </View>
-                        <View className="flex-row gap-4 items-center">
-                            <Button variant="ghost" isIconOnly size="sm" onPress={() => {}}>
-                                <StyledIonicons name="pencil" size={18} className="text-accent-foreground" />
-                            </Button>
-                            <Button variant="destructive" isIconOnly size="sm" onPress={() => {}}>
-                                <StyledIonicons name="trash" size={18} className="text-accent-foreground" />
-                            </Button>
-                        </View>
-                    </Card.Body>
-                </Card>
-            </ReanimatedSwipeable>
-        </GestureHandlerRootView>
+        <ReanimatedSwipeable
+            friction={2}
+            rightThreshold={60}
+            renderRightActions={(_, drag) =>
+                RightActions(employee, drag)
+            }
+        >
+            <View className="flex-row justify-between gap-4 p-4">
+                <View>
+                    <Text className="text-lg font-medium">{employee.position}. {employee.name}</Text>
+                    <Text className="text-base font-medium text-muted"> Placa: {employee.licensePlate ?? 'Não informado'}</Text>
+                </View>
+                <Chip color={employee.active ? 'success' : 'danger'} variant="soft">
+                    {employee.active ? 'Ativo' : 'Inativo'}
+                </Chip>
+            </View>
+        </ReanimatedSwipeable>
+    )
+}
+
+const StyledFontAwesome = withUniwind(FontAwesome)
+
+function RightActions(
+    employee: EmployeeType,
+    drag: SharedValue<number>
+) {
+    const animatedStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ translateX: drag.value + 270 }],
+        }
+    })
+  
+    return (
+        <Reanimated.View
+            style={[
+            {
+                flexDirection: "row",
+                height: "100%",
+            },
+            animatedStyle,
+          ]}
+        >
+            {/* ATIVAR / INATIVAR */}
+            <ActionButton
+                color={employee.active ? "#f0ad4e" : "#5cb85c"}
+                label={employee.active ? "Inativar" : "Ativar"}
+                onPress={() => console.log("toggle active", employee._id)}
+                iconName={employee.active ? 'toggle-off' : 'toggle-on'}
+            />
+
+            {/* EDITAR */}
+            <ActionButton
+                color="#0275d8"
+                label="Editar"
+                onPress={() => console.log("edit", employee._id)}
+                iconName='edit'
+            />
+
+            {/* DELETAR */}
+            <ActionButton
+                color="#d9534f"
+                label="Excluir"
+                onPress={() => console.log("delete", employee._id)}
+                iconName='trash'
+            />
+        </Reanimated.View>
+    )
+}
+
+function ActionButton({
+    color,
+    label,
+    iconName,
+    onPress,
+}: {
+    color: string;
+    label: string;
+    iconName: ComponentProps<typeof FontAwesome>['name'];
+    onPress: () => void;
+}) {
+    return (
+        <PressableFeedback
+            feedbackVariant="highlight"
+            onPress={onPress}
+            style={{
+                width: 90,
+                backgroundColor: color,
+                justifyContent: "center",
+                alignItems: "center",
+            }}
+        >
+            <StyledFontAwesome name={iconName} size={24} className="text-white" />
+            <Text className="text-white font-bold">
+                {label}
+            </Text>
+        </PressableFeedback>
     )
 }
 
 const LoadingSkeleton = () => {
     return (
         <SkeletonGroup className="gap-4">
-            <SkeletonGroup.Item className="h-16 rounded-xl" />
-            <SkeletonGroup.Item className="h-16 rounded-xl" />
-            <SkeletonGroup.Item className="h-16 rounded-xl" />
-            <SkeletonGroup.Item className="h-16 rounded-xl" />
+            <SkeletonGroup.Item className="h-20 rounded-lg" />
+            <SkeletonGroup.Item className="h-20 rounded-lg" />
+            <SkeletonGroup.Item className="h-20 rounded-lg" />
+            <SkeletonGroup.Item className="h-20 rounded-lg" />
+            <SkeletonGroup.Item className="h-20 rounded-lg" />
+            <SkeletonGroup.Item className="h-20 rounded-lg" />
         </SkeletonGroup>
     )
 }
